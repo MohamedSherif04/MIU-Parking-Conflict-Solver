@@ -31,65 +31,79 @@
         <?php endif; ?>
     </div>
 
-    <div class="card">
-        <h3>Report Conflict</h3>
-        <div class="form-group">
-            <label>Search Plate to Report</label>
-            <input type="text" id="search_plate" placeholder="Enter Plate Number (e.g., ABC-123)">
-            <button type="button" class="btn secondary" onclick="searchPlate()">Search</button>
-            <div id="search_result" style="margin-top: 10px; font-weight: bold;"></div>
-        </div>
+    <?php $isOwner = count($data['vehicles']) > 0; ?>
 
-        <form action="<?php echo URLROOT; ?>/report/submit" method="POST" id="reportForm">
-            <input type="hidden" name="blocked_plate" id="blocked_plate_input" required>
+    <?php if (!$isOwner): ?>
+        <div class="card full-width" style="text-align: center; padding: 40px; border: 2px solid var(--highlight);">
+            <h2 style="font-size: 2rem; margin-bottom: 20px;">Report Conflict</h2>
             
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" placeholder="Describe the situation..." required></textarea>
+            <div class="form-group" style="max-width: 600px; margin: 0 auto;">
+                <label style="font-size: 1.2rem;">Search Plate to Report</label>
+                <input type="text" id="search_plate" placeholder="Enter Plate Number (e.g., ABC-123)" style="padding: 15px; font-size: 1.1rem;">
+                <button type="button" class="btn secondary" onclick="searchPlate()" style="margin-top:10px; padding: 10px 20px; font-size: 1.1rem;">Search</button>
+                <div id="search_result" style="margin-top: 15px; font-weight: bold; font-size: 1.2rem;"></div>
             </div>
-            
-            <button type="submit" class="btn" id="submit_btn" disabled style="opacity: 0.5; cursor: not-allowed;">Submit Report</button>
-        </form>
-    </div>
 
-    <div class="card">
-        <h3>My Vehicles</h3>
-        <ul>
-            <?php foreach ($data['vehicles'] as $vehicle): ?>
-                <li><?php echo $vehicle['model']; ?> (<?php echo $vehicle['license_plate']; ?>)</li>
-            <?php endforeach; ?>
-        </ul>
+            <form action="<?php echo URLROOT; ?>/report/submit" method="POST" id="reportForm" style="max-width: 600px; margin: 20px auto 0;">
+                <input type="hidden" name="blocked_plate" id="blocked_plate_input" required>
+                <div class="form-group">
+                    <label style="font-size: 1.2rem;">Description</label>
+                    <textarea name="description" placeholder="Describe the situation..." required style="padding: 15px; font-size: 1.1rem; height: 120px;"></textarea>
+                </div>
+                <button type="submit" class="btn" id="submit_btn" disabled style="opacity: 0.5; cursor: not-allowed; font-size: 1.2rem; padding: 15px 30px;">Submit Report</button>
+            </form>
         </div>
 
-    <div class="card full-width">
-        <h3>Report History</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Blocked Plate</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($data['reports'] as $report): ?>
+        <div class="card full-width">
+            <h3>Report History</h3>
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo $report['report_id']; ?></td>
-                        <td><?php echo $report['blocked_plate']; ?></td>
-                        <td>
-                            <span style="
-                                color: <?php echo $report['status'] == 'Resolved' ? 'var(--success-color)' : ($report['status'] == 'Escalated' ? 'var(--error-color)' : '#fff'); ?>;
-                                font-weight: bold;">
-                                <?php echo $report['status']; ?>
-                            </span>
-                        </td>
-                        <td><?php echo $report['created_at']; ?></td>
+                        <th>ID</th>
+                        <th>Blocked Plate</th>
+                        <th>Status</th>
+                        <th>Date</th>
                     </tr>
+                </thead>
+                <tbody>
+                    <?php if(empty($data['reports'])): ?>
+                        <tr><td colspan="4" style="text-align:center;">No reports found.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($data['reports'] as $report): ?>
+                            <tr>
+                                <td><?php echo $report['report_id']; ?></td>
+                                <td><?php echo $report['blocked_plate']; ?></td>
+                                <td>
+                                    <span style="color: <?php echo $report['status'] == 'Resolved' ? 'var(--success-color)' : ($report['status'] == 'Escalated' ? 'var(--error-color)' : '#fff'); ?>; font-weight: bold;">
+                                        <?php echo $report['status']; ?>
+                                    </span>
+                                </td>
+                                <td><?php echo $report['created_at']; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($isOwner): ?>
+        <div class="card full-width" style="text-align: center;">
+            <h3>My Vehicles</h3>
+            <ul style="list-style: none; padding: 0;">
+                <?php foreach ($data['vehicles'] as $vehicle): ?>
+                    <li style="background: rgba(255,255,255,0.05); padding: 15px; margin: 10px auto; max-width: 500px; border-radius: 8px; border: 1px solid var(--highlight); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: left;">
+                            <strong style="font-size: 1.3rem; display:block;"><?php echo $vehicle['license_plate']; ?></strong>
+                            <span style="color: #ccc;"><?php echo $vehicle['model']; ?> (<?php echo $vehicle['color']; ?>)</span>
+                        </div>
+                        <a href="<?php echo URLROOT; ?>/vehicle/edit/<?php echo $vehicle['license_plate']; ?>" class="btn small secondary">Edit Details</a>
+                    </li>
                 <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+            </ul>
+        </div>
+    <?php endif; ?>
+
 </div>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

@@ -14,7 +14,6 @@ class Vehicle extends Model
 
     public function findVehicleByPlate($plate)
     {
-        // Returns car Model/Color if found (as per "POST /report/search" req)
         $this->db->query("SELECT * FROM vehicles WHERE license_plate = :plate");
         $this->db->bind(':plate', $plate);
         return $this->db->single();
@@ -25,5 +24,17 @@ class Vehicle extends Model
         $this->db->query("SELECT * FROM vehicles WHERE owner_id = :uid");
         $this->db->bind(':uid', $user_id);
         return $this->db->resultSet();
+    }
+
+    // --- NEW METHOD ---
+    public function updateVehicle($data)
+    {
+        // We do not allow changing License Plate here as it is the Primary Key
+        $this->db->query("UPDATE vehicles SET model = :model, color = :color WHERE license_plate = :plate AND owner_id = :uid");
+        $this->db->bind(':model', $data['model']);
+        $this->db->bind(':color', $data['color']);
+        $this->db->bind(':plate', $data['license_plate']);
+        $this->db->bind(':uid', $data['owner_id']);
+        return $this->db->execute();
     }
 }
