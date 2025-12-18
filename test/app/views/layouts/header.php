@@ -13,35 +13,39 @@
     <nav class="navbar">
         <div class="container">
             <a href="<?php echo URLROOT; ?>/" class="brand">MIU Parking</a>
+            
             <ul class="nav-links">
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php 
+                    // 1. Determine Current Role
+                    $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : 'All';
                     
-                    <?php 
-                        // We instantiate the model directly here to ensure the badge 
-                        // is available on every page (header is global)
-                        require_once '../app/models/Notification.php';
-                        $nModel = new Notification();
-                        $unreadCount = $nModel->getUnreadCount($_SESSION['user_id']);
-                    ?>
+                    // 2. Load Menu Model & Fetch Items
+                    require_once '../app/models/Menu.php';
+                    $menuModel = new Menu();
+                    $menuItems = $menuModel->getMenuItems($currentRole);
 
-                    <?php if ($_SESSION['role'] == 'Admin'): ?>
-                        <li><a href="<?php echo URLROOT; ?>/dashboard/admin">Admin Dashboard</a></li>
-                    <?php else: ?>
-                        <li class="nav-item">
-                            <a href="<?php echo URLROOT; ?>/dashboard/index">
-                                Dashboard
-                                <?php if ($unreadCount > 0): ?>
-                                    <span class="badge"><?php echo $unreadCount; ?></span>
-                                <?php endif; ?>
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                    
-                    <li><a href="<?php echo URLROOT; ?>/auth/logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo URLROOT; ?>/auth/login">Login</a></li>
-                    <li><a href="<?php echo URLROOT; ?>/auth/register">Register</a></li>
-                <?php endif; ?>
+                    // 3. Loop through items from Database
+                    foreach ($menuItems as $item): 
+                        // Skip sub-menu items for the main bar (items with parents)
+                        if ($item['parent_id'] != NULL) continue; 
+                ?>
+                    <li class="nav-item">
+                        <a href="<?php echo URLROOT . $item['url']; ?>">
+                            <?php echo $item['label']; ?>
+                            
+                            <?php 
+                                if ($item['label'] == 'Dashboard' && isset($_SESSION['user_id'])) {
+                                    require_once '../app/models/Notification.php';
+                                    $nModel = new Notification();
+                                    $unreadCount = $nModel->getUnreadCount($_SESSION['user_id']);
+                                    if ($unreadCount > 0) {
+                                        echo "<span class='badge'>$unreadCount</span>";
+                                    }
+                                }
+                            ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         </div>
     </nav>
