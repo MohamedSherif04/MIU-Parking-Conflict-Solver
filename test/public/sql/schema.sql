@@ -1,17 +1,16 @@
--- MIU Parking Conflict Solver Schema
+-- MIU Parking Conflict Solver Schema (Updated)
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
---
--- Database: `miu_parking_solver`
---
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- 1. Table: users
+-- Data Validation: 
+--  - University ID must be Unique
+--  - Phone Number must be Unique and contain only digits (MySQL 8.0.16+)
 --
 
 CREATE TABLE `users` (
@@ -23,13 +22,16 @@ CREATE TABLE `users` (
   `role` enum('Admin','Student') NOT NULL DEFAULT 'Student',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY `university_id` (`university_id`)
+  UNIQUE KEY `university_id` (`university_id`),
+  UNIQUE KEY `phone_number` (`phone_number`),
+  CONSTRAINT `chk_phone_digits` CHECK (`phone_number` REGEXP '^[0-9]+$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `vehicles`
+-- 2. Table: vehicles
+-- Data Validation: License Plate is Primary Key (No duplicates allowed)
 --
 
 CREATE TABLE `vehicles` (
@@ -46,7 +48,7 @@ CREATE TABLE `vehicles` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reports`
+-- 3. Table: reports
 --
 
 CREATE TABLE `reports` (
@@ -67,7 +69,7 @@ CREATE TABLE `reports` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notifications`
+-- 4. Table: notifications
 --
 
 CREATE TABLE `notifications` (
@@ -84,7 +86,7 @@ CREATE TABLE `notifications` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `audit_log`
+-- 5. Table: audit_log
 --
 
 CREATE TABLE `audit_log` (
@@ -97,5 +99,36 @@ CREATE TABLE `audit_log` (
   KEY `actor_id` (`actor_id`),
   CONSTRAINT `fk_audit_actor` FOREIGN KEY (`actor_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- 6. Table: menu_items (Solves "Dynamic Menu" & "Self Reference")
+--
+
+CREATE TABLE `menu_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `label` varchar(50) NOT NULL,
+  `url` varchar(100) NOT NULL,
+  `parent_id` int(11) DEFAULT NULL,
+  `role_access` enum('All','Student','Admin') DEFAULT 'All',
+  `order_index` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `parent_id` (`parent_id`),
+  CONSTRAINT `fk_menu_parent` FOREIGN KEY (`parent_id`) REFERENCES `menu_items` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Seeding Menu Data
+--
+INSERT INTO `menu_items` (`label`, `url`, `role_access`, `order_index`, `parent_id`) VALUES
+('Home', '/', 'All', 1, NULL),
+('Login', '/auth/login', 'All', 2, NULL),
+('Register', '/auth/register', 'All', 3, NULL),
+('Dashboard', '/dashboard/index', 'Student', 1, NULL),
+('Admin Panel', '/dashboard/admin', 'Admin', 1, NULL),
+('My Profile', '/profile', 'Student', 2, 4), -- Example of Self Reference: Child of Dashboard (ID 4)
+('Logout', '/auth/logout', 'Student', 99, NULL),
+('Logout', '/auth/logout', 'Admin', 99, NULL);
 
 COMMIT;
