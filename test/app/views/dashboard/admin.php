@@ -68,14 +68,14 @@ if($escalatedCount > 0):
                         <td><?php echo $report['reporter_name']; ?></td>
                         <td><?php echo $report['blocked_plate']; ?></td>
                         <td>
-                            <span class="badge" style="background: 
+                            <!-- <span class="badge" style="background: 
                                 <?php 
                                     if($report['status']=='Pending') echo 'orange'; 
                                     elseif($report['status']=='Resolved') echo 'var(--success-color)';
                                     elseif($report['status']=='Escalated') echo 'var(--error-color)';
                                 ?>">
                                 <?php echo $report['status']; ?>
-                            </span>
+                            </span> -->
                         </td>
                         <td>
                             <?php 
