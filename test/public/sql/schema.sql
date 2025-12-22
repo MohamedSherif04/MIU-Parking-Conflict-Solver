@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `university_id` (`university_id`),
   UNIQUE KEY `phone_number` (`phone_number`),
-  CONSTRAINT `chk_phone_digits` CHECK (`phone_number` REGEXP '^[0-9]+$')
+  CONSTRAINT `chk_phone_digits` CHECK (`phone_number` REGEXP '^[+]?[0-9]+$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

@@ -15,10 +15,13 @@
         <div class="form-group">
             <label for="full_name">Full Name</label>
             <input type="text" name="full_name" id="full_name" required>
-        </div>
         <div class="form-group">
             <label for="phone_number">Phone Number</label>
-            <input type="text" name="phone_number" id="phone_number" required pattern="\d{1,11}" maxlength="11">
+            <input type="text" name="phone_number" id="phone_number" required 
+                   pattern="\+20\d{10}" 
+                   title="Must start with +20 followed by 10 digits (e.g. +201012345678)"
+                   placeholder="+201012345678">
+            <small style="color:#888;">Format: +201xxxxxxxxx</small>
         </div>
         <div class="form-group">
             <label for="password">Password</label>
