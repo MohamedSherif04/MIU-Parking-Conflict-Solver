@@ -1,0 +1,2 @@
+2025-12-22 14:06:12 - SMS sent to owner of vehicle ABC-123: You have been reported for blocking.
+2025-12-22 14:07:49 - SMS sent to owner of vehicle ABC-123: You have been reported for blocking.
