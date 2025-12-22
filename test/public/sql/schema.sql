@@ -1,19 +1,11 @@
--- MIU Parking Conflict Solver Schema (Updated)
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
-
---
 -- 1. Table: users
--- Data Validation: 
---  - University ID must be Unique
---  - Phone Number must be Unique and contain only digits (MySQL 8.0.16+)
---
-
-CREATE TABLE `users` (
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `university_id` varchar(50) NOT NULL,
   `full_name` varchar(100) NOT NULL,
@@ -28,13 +20,9 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
-
---
 -- 2. Table: vehicles
--- Data Validation: License Plate is Primary Key (No duplicates allowed)
---
-
-CREATE TABLE `vehicles` (
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vehicles` (
   `license_plate` varchar(20) NOT NULL,
   `owner_id` int(11) NOT NULL,
   `model` varchar(50) NOT NULL,
@@ -46,12 +34,9 @@ CREATE TABLE `vehicles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
-
---
 -- 3. Table: reports
---
-
-CREATE TABLE `reports` (
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `reports` (
   `report_id` int(11) NOT NULL AUTO_INCREMENT,
   `reporter_id` int(11) NOT NULL,
   `blocked_plate` varchar(20) NOT NULL,
@@ -67,12 +52,9 @@ CREATE TABLE `reports` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
-
---
 -- 4. Table: notifications
---
-
-CREATE TABLE `notifications` (
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `message` text NOT NULL,
@@ -84,12 +66,9 @@ CREATE TABLE `notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
-
---
--- 5. Table: audit_log
---
-
-CREATE TABLE `audit_log` (
+-- 5. Table: audit_log (History Preservation Table)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `audit_log` (
   `log_id` int(11) NOT NULL AUTO_INCREMENT,
   `actor_id` int(11) DEFAULT NULL,
   `action_type` varchar(50) NOT NULL,
@@ -101,12 +80,9 @@ CREATE TABLE `audit_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
-
---
--- 6. Table: menu_items (Solves "Dynamic Menu" & "Self Reference")
---
-
-CREATE TABLE `menu_items` (
+-- 6. Table: menu_items
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `menu_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(50) NOT NULL,
   `url` varchar(100) NOT NULL,
@@ -119,16 +95,16 @@ CREATE TABLE `menu_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Seeding Menu Data
+-- Seeding Menu Data (Using INSERT IGNORE to prevent duplicates on re-run)
 --
-INSERT INTO `menu_items` (`label`, `url`, `role_access`, `order_index`, `parent_id`) VALUES
-('Home', '/', 'All', 1, NULL),
-('Login', '/auth/login', 'All', 2, NULL),
-('Register', '/auth/register', 'All', 3, NULL),
-('Dashboard', '/dashboard/index', 'Student', 1, NULL),
-('Admin Panel', '/dashboard/admin', 'Admin', 1, NULL),
-('My Profile', '/profile', 'Student', 2, 4), -- Example of Self Reference: Child of Dashboard (ID 4)
-('Logout', '/auth/logout', 'Student', 99, NULL),
-('Logout', '/auth/logout', 'Admin', 99, NULL);
+INSERT IGNORE INTO `menu_items` (`id`, `label`, `url`, `role_access`, `order_index`, `parent_id`) VALUES
+(1, 'Home', '/', 'All', 1, NULL),
+(2, 'Login', '/auth/login', 'All', 2, NULL),
+(3, 'Register', '/auth/register', 'All', 3, NULL),
+(4, 'Dashboard', '/dashboard/index', 'Student', 1, NULL),
+(5, 'Admin Panel', '/dashboard/admin', 'Admin', 1, NULL),
+(6, 'My Profile', '/profile', 'Student', 2, 4),
+(7, 'Logout', '/auth/logout', 'Student', 99, NULL),
+(8, 'Logout', '/auth/logout', 'Admin', 99, NULL);
 
 COMMIT;
