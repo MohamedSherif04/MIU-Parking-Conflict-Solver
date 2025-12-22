@@ -8,7 +8,7 @@
     
     <form action="<?php echo URLROOT; ?>/auth/register" method="POST">
         <div class="form-group">
-            <label for="university_id">University ID (Admins: include '#')</label>
+            <label for="university_id">University ID</label>
             <input type="text" name="university_id" id="university_id" required 
                 placeholder="ex: 2023/01234" onkeyup="checkAdmin()">
         </div>
