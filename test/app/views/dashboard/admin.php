@@ -34,10 +34,12 @@ if($escalatedCount > 0):
                         <td><?php echo $user['role']; ?></td>
                         <td>
                             <?php if($user['role'] != 'Admin'): ?>
-                            <form action="<?php echo URLROOT; ?>/dashboard/deleteUser" method="POST" onsubmit="return confirm('Are you sure?');">
-                                <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                <button type="submit" class="btn small" style="background-color:var(--error-color)">Delete</button>
-                            </form>
+                                <a href="<?php echo URLROOT; ?>/dashboard/editUser/<?php echo $user['user_id']; ?>" class="btn small secondary">Edit</a>
+                                
+                                <form action="<?php echo URLROOT; ?>/dashboard/deleteUser" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                    <button type="submit" class="btn small" style="background-color:var(--error-color)">Delete</button>
+                                </form>
                             <?php else: ?>
                                 <span style="color:#666;">(Admin)</span>
                             <?php endif; ?>
@@ -56,8 +58,7 @@ if($escalatedCount > 0):
                     <th>Report ID</th>
                     <th>Reporter</th>
                     <th>Blocked Plate</th>
-                    <th>Status</th>
-                    <th>Time Elapsed</th>
+                    <th>Status</th> <th>Time Elapsed</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -67,8 +68,10 @@ if($escalatedCount > 0):
                         <td><?php echo $report['report_id']; ?></td>
                         <td><?php echo $report['reporter_name']; ?></td>
                         <td><?php echo $report['blocked_plate']; ?></td>
+                        
                         <td>
-                        </td>
+                            </td>
+
                         <td>
                             <?php 
                                 $start = strtotime($report['created_at']);

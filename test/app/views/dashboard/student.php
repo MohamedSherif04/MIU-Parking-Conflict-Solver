@@ -15,13 +15,20 @@
                         <?php echo $notif['message']; ?>
                         <span class="notification-time"><?php echo $notif['created_at']; ?></span>
                         
-                        <?php if (strpos($notif['message'], 'Is the issue resolved?') !== false): ?>
-                            <div class="verification-box" style="margin-top:10px; padding:10px; background:#232946; border-radius:5px;">
-                                <p style="margin:0 0 5px 0; font-size:0.9rem; color:#fff;">Please verify:</p>
-                                <form action="<?php echo URLROOT; ?>/report/verify" method="POST" style="display:inline;">
-                                    <input type="hidden" name="report_id" value="<?php echo $notif['related_id'] ?? 0; ?>">
-                                    <button type="submit" name="status" value="true" class="btn small" style="background-color:var(--success-color); color:#000;">True (Resolved)</button>
-                                    <button type="submit" name="status" value="false" class="btn small" style="background-color:var(--error-color); color:#fff;">False (Not Yet)</button>
+                        <?php if ($notif['related_id'] != NULL && strpos($notif['message'], 'Is the issue resolved?') !== false): ?>
+                            <div class="verification-box" style="margin-top:10px; padding:15px; background:#232946; border:1px solid var(--highlight); border-radius:5px;">
+                                <p style="margin:0 0 10px 0; color:#fff;">Please confirm status:</p>
+                                
+                                <form action="<?php echo URLROOT; ?>/report/verify" method="POST">
+                                    <input type="hidden" name="report_id" value="<?php echo $notif['related_id']; ?>">
+                                    
+                                    <label style="display:flex; align-items:center; cursor:pointer; gap:10px; margin-bottom:10px;">
+                                        <input type="checkbox" name="is_solved" value="yes" style="width:20px; height:20px;">
+                                        <span style="font-size:1rem; font-weight:bold; color:var(--success-color);">Yes, the issue is Solved.</span>
+                                    </label>
+
+                                    <button type="submit" class="btn small full-width-btn">Confirm Status</button>
+                                    <small style="display:block; margin-top:5px; color:#aaa;">(If unchecked, report will be escalated)</small>
                                 </form>
                             </div>
                         <?php endif; ?>
@@ -55,10 +62,11 @@
 
     <div class="card full-width" style="text-align: center;">
         <h3>My Vehicles</h3>
+        
         <?php if (empty($data['vehicles'])): ?>
-            <p style="color:var(--error-color);">Warning: You have no registered vehicles. <br>Please contact Admin to register your car.</p>
+            <p style="margin-bottom: 20px;">You have no registered vehicles.</p>
         <?php else: ?>
-            <ul style="list-style: none; padding: 0;">
+            <ul style="list-style: none; padding: 0; margin-bottom: 30px;">
                 <?php foreach ($data['vehicles'] as $vehicle): ?>
                     <li style="background: rgba(255,255,255,0.05); padding: 15px; margin: 10px auto; max-width: 500px; border-radius: 8px; border: 1px solid var(--highlight); display: flex; justify-content: space-between; align-items: center;">
                         <div style="text-align: left;">
@@ -70,6 +78,16 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+
+        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+        <h4>Add a New Vehicle</h4>
+        <form action="<?php echo URLROOT; ?>/vehicle/add" method="POST" style="display:flex; gap:10px; flex-wrap:wrap; justify-content: center; max-width: 600px; margin: 0 auto;">
+            <input type="text" name="license_plate" placeholder="Plate (ABC-123)" required style="padding:10px; flex:1; min-width: 120px;">
+            <input type="text" name="model" placeholder="Model (e.g. Toyota)" required style="padding:10px; flex:1; min-width: 120px;">
+            <input type="text" name="color" placeholder="Color" required style="padding:10px; flex:1; min-width: 100px;">
+            <button type="submit" class="btn small">Add Car</button>
+        </form>
     </div>
 
     <div class="card full-width">

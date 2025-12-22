@@ -37,4 +37,12 @@ class Vehicle extends Model
         $this->db->bind(':uid', $data['owner_id']);
         return $this->db->execute();
     }
+    public function updateVehicleFull($data) {
+        $this->db->query("UPDATE vehicles SET license_plate = :new_plate, model = :model, color = :color WHERE license_plate = :old_plate");
+        $this->db->bind(':new_plate', $data['license_plate']);
+        $this->db->bind(':model', $data['model']);
+        $this->db->bind(':color', $data['color']);
+        $this->db->bind(':old_plate', $data['plate']);
+        return $this->db->execute();
+    }
 }
