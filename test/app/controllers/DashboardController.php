@@ -95,30 +95,40 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function updateUser()
+   public function updateUser()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SESSION['role'] == 'Admin') {
             $userModel = $this->model('User');
             $vehicleModel = $this->model('Vehicle');
 
+            $phone = trim($_POST['phone_number']);
+
+            // [CHANGED] STRICT VALIDATION FOR EDIT
+            if (!preg_match('/^\+20\d{10}$/', $phone)) {
+                // Since this is a simple form post, we'll just die with error for now
+                // or redirect back with error if you had a flash message system.
+                echo "<script>alert('Error: Phone must start with +20 followed by 10 digits.'); window.history.back();</script>";
+                exit();
+            }
+
             // 1. Update User Info
             $userData = [
                 'user_id' => $_POST['user_id'],
                 'full_name' => filter_var($_POST['full_name'], FILTER_SANITIZE_SPECIAL_CHARS),
-                'phone_number' => $_POST['phone_number']
+                'phone_number' => $phone
             ];
-            $userModel->updateUser($userData); // Need to add to User Model
+            $userModel->updateUser($userData);
 
             // 2. Update Vehicle Info (if provided)
             if (isset($_POST['original_plate'])) {
                 $vehicleData = [
-                    'license_plate' => $_POST['license_plate'], // New Plate
+                    'license_plate' => $_POST['license_plate'],
                     'model' => $_POST['model'],
                     'color' => $_POST['color'],
-                    'plate' => $_POST['original_plate'], // Old Plate (PK)
-                    'owner_id' => $_POST['user_id'] // Needed for verification
+                    'plate' => $_POST['original_plate'],
+                    'owner_id' => $_POST['user_id']
                 ];
-                $vehicleModel->updateVehicleFull($vehicleData); // Need to add to Vehicle Model
+                $vehicleModel->updateVehicleFull($vehicleData);
             }
 
             header('Location: ' . URLROOT . '/dashboard/admin');
