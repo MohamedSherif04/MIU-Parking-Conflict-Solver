@@ -42,4 +42,22 @@ class VehicleController extends Controller
             $this->view('vehicle/edit', ['vehicle' => $vehicle]);
         }
     }
+    public function add()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
+            $vehicleModel = $this->model('Vehicle');
+            $data = [
+                'license_plate' => filter_var($_POST['license_plate'], FILTER_SANITIZE_SPECIAL_CHARS),
+                'owner_id' => $_SESSION['user_id'],
+                'model' => filter_var($_POST['model'], FILTER_SANITIZE_SPECIAL_CHARS),
+                'color' => filter_var($_POST['color'], FILTER_SANITIZE_SPECIAL_CHARS)
+            ];
+
+            if ($vehicleModel->addVehicle($data)) {
+                header('Location: ' . URLROOT . '/dashboard/index');
+            } else {
+                die('Error adding vehicle: Plate might already exist.');
+            }
+        }
+    }
 }

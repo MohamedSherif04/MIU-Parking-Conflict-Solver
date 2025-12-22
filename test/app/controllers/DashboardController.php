@@ -74,4 +74,54 @@ class DashboardController extends Controller
             }
         }
     }
+    // --- ADMIN: EDIT USER ---
+    public function editUser($id)
+    {
+        if ($_SESSION['role'] != 'Admin') {
+            header('Location: ' . URLROOT . '/dashboard');
+            exit();
+        }
+
+        $userModel = $this->model('User');
+        $vehicleModel = $this->model('Vehicle');
+
+        $user = $userModel->getUserById($id); // You need to add this to User model
+        $vehicles = $vehicleModel->getVehiclesByUserId($id);
+        $vehicle = !empty($vehicles) ? $vehicles[0] : null; // Get primary car
+
+        $this->view('dashboard/edit_user', [
+            'user' => $user,
+            'vehicle' => $vehicle
+        ]);
+    }
+
+    public function updateUser()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SESSION['role'] == 'Admin') {
+            $userModel = $this->model('User');
+            $vehicleModel = $this->model('Vehicle');
+
+            // 1. Update User Info
+            $userData = [
+                'user_id' => $_POST['user_id'],
+                'full_name' => filter_var($_POST['full_name'], FILTER_SANITIZE_SPECIAL_CHARS),
+                'phone_number' => $_POST['phone_number']
+            ];
+            $userModel->updateUser($userData); // Need to add to User Model
+
+            // 2. Update Vehicle Info (if provided)
+            if (isset($_POST['original_plate'])) {
+                $vehicleData = [
+                    'license_plate' => $_POST['license_plate'], // New Plate
+                    'model' => $_POST['model'],
+                    'color' => $_POST['color'],
+                    'plate' => $_POST['original_plate'], // Old Plate (PK)
+                    'owner_id' => $_POST['user_id'] // Needed for verification
+                ];
+                $vehicleModel->updateVehicleFull($vehicleData); // Need to add to Vehicle Model
+            }
+
+            header('Location: ' . URLROOT . '/dashboard/admin');
+        }
+    }
 }

@@ -44,4 +44,17 @@ class User extends Model
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+    public function getUserById($id) {
+        $this->db->query("SELECT * FROM users WHERE user_id = :id");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function updateUser($data) {
+        $this->db->query("UPDATE users SET full_name = :name, phone_number = :phone WHERE user_id = :id");
+        $this->db->bind(':name', $data['full_name']);
+        $this->db->bind(':phone', $data['phone_number']);
+        $this->db->bind(':id', $data['user_id']);
+        return $this->db->execute();
+    }
 }

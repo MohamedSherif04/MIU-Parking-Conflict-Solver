@@ -139,4 +139,29 @@ class ReportController extends Controller
             header('Location: ' . URLROOT . '/dashboard/index');
         }
     }
+    public function verify()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $report_id = $_POST['report_id'];
+            $reportModel = $this->model('Report');
+            $notifModel = $this->model('Notification');
+
+            // Check if checkbox is checked
+            if (isset($_POST['is_solved']) && $_POST['is_solved'] == 'yes') {
+                // TRUE -> RESOLVED
+                $reportModel->resolve($report_id);
+                // Delete the notification so it doesn't show again
+                $notifModel->deleteByRelatedId($report_id); // Add this method to Notification model
+            } else {
+                // FALSE (Unchecked) -> ESCALATE
+                $reportModel->updateStatus($report_id, 'Escalated');
+                $notifModel->deleteByRelatedId($report_id); // Remove notification
+                
+                // Notify Admin
+                $notifModel->create(1, "ESCALATION: Reporter marked Report #$report_id as NOT resolved.", $report_id);
+            }
+
+            header('Location: ' . URLROOT . '/dashboard/index');
+        }
+    }
 }
