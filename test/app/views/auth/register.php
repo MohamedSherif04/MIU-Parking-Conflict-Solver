@@ -10,7 +10,7 @@
         <div class="form-group">
             <label for="university_id">University ID (Admins: include '#')</label>
             <input type="text" name="university_id" id="university_id" required 
-                placeholder="2023/01234 (or #AdminID)" onkeyup="checkAdmin()">
+                placeholder="ex: 2023/01234" onkeyup="checkAdmin()">
         </div>
         <div class="form-group">
             <label for="full_name">Full Name</label>
