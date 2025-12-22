@@ -35,24 +35,24 @@ class Report extends Model
         return $this->db->execute();
     }
 
-    // Logic: If created_at > 15 mins AND status is Pending, update status to Escalated
-   // Call this in DashboardController->index()
+    // --- TIMEOUT NOTIFICATION LOGIC ---
     public function sendTimeouts()
     {
-        // 1. Find Pending reports older than 15 mins (INTERVAL 15 MINUTE)
-        // AND check they are not already flagged (we will use notification existence to check)
-        $this->db->query("SELECT * FROM reports WHERE status = 'Pending' AND created_at < (NOW() - INTERVAL 15 MINUTE)");
+        // 1. Get reports pending for more than 15 minutes
+        $this->db->query("SELECT * FROM reports WHERE status = 'Pending' AND created_at < (NOW() - INTERVAL 3 MINUTE)");
         $pendingReports = $this->db->resultSet();
 
-        $notifModel = new Notification(); // Need to require this model
+        // [FIXED] REQUIRE THE NOTIFICATION MODEL HERE
+        require_once '../app/models/Notification.php';
+        
+        $notifModel = new Notification(); 
 
         foreach ($pendingReports as $report) {
-            // Check if we already sent a notification for this report
+            // Check if notification already sent to avoid spamming
             if (!$notifModel->notificationExistsForReport($report['report_id'])) {
                 
-                // SEND NOTIFICATION
                 $msg = "Timeout Check: Report #" . $report['report_id'] . " has been active for 15+ mins. Is the issue resolved?";
-                // Send to Reporter
+                // Create notification linked to the report
                 $notifModel->create($report['reporter_id'], $msg, $report['report_id']);
             }
         }

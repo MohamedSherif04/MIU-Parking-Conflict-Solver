@@ -29,7 +29,6 @@ class ReportController extends Controller
 
             // 2. Alert if Not Found
             if (!$vehicle) {
-                // CHANGED: Instead of die(), show a JS Alert and redirect back
                 echo "<script>
                         alert('Error: License Plate ($plate) not found in database.');
                         window.history.back();
@@ -64,7 +63,9 @@ class ReportController extends Controller
     public function search()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Ensure no whitespace/errors before this JSON header
             header('Content-Type: application/json');
+            
             $plate = $_POST['plate'];
             $vehicleModel = $this->model('Vehicle');
             $vehicle = $vehicleModel->findVehicleByPlate($plate);
@@ -113,32 +114,8 @@ class ReportController extends Controller
             }
         }
     }
-    // Reporter clicks True/False on the notification
-    public function verify()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $report_id = $_POST['report_id'];
-            $status = $_POST['status']; // 'true' or 'false'
-            
-            $reportModel = $this->model('Report');
 
-            if ($status == 'true') {
-                // Reporter confirmed it's resolved
-                $reportModel->resolve($report_id);
-                // Optionally notify admin "Reporter Confirmed Resolution"
-            } else {
-                // Reporter says NOT resolved -> Escalate to Admin
-                $reportModel->updateStatus($report_id, 'Escalated');
-                
-                // Add Notification for Admin
-                $notifModel = $this->model('Notification');
-                // Assuming Admin ID is 1 or finding admin ID logic
-                $notifModel->create(1, "ESCALATION: Reporter denied resolution for Report #$report_id");
-            }
-
-            header('Location: ' . URLROOT . '/dashboard/index');
-        }
-    }
+    // --- ONLY ONE VERIFY FUNCTION (Corrected) ---
     public function verify()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -151,7 +128,7 @@ class ReportController extends Controller
                 // TRUE -> RESOLVED
                 $reportModel->resolve($report_id);
                 // Delete the notification so it doesn't show again
-                $notifModel->deleteByRelatedId($report_id); // Add this method to Notification model
+                $notifModel->deleteByRelatedId($report_id); 
             } else {
                 // FALSE (Unchecked) -> ESCALATE
                 $reportModel->updateStatus($report_id, 'Escalated');

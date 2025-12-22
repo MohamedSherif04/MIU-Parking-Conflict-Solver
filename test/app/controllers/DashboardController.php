@@ -50,7 +50,7 @@ class DashboardController extends Controller
         $userModel = $this->model('User'); // Load User Model
 
         // Check 15-min timeout and auto-escalate
-        $reportModel->checkTimeout();
+        $reportModel->sendTimeouts();
 
         // Fetch Data
         $reports = $reportModel->getAllReports();
