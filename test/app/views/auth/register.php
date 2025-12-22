@@ -5,12 +5,12 @@
     <?php if (isset($data['error'])): ?>
         <p class="error"><?php echo $data['error']; ?></p>
     <?php endif; ?>
+    
     <form action="<?php echo URLROOT; ?>/auth/register" method="POST">
-        <!-- Personal Info -->
         <div class="form-group">
-            <label for="university_id">University ID (Format: 2023/01234)</label>
-            <input type="text" name="university_id" id="university_id" required pattern="^\d{4}\/\d{5}$"
-                title="Format must be YYYY/IDDDD, e.g. 2023/01234" placeholder="2023/01234">
+            <label for="university_id">University ID (Admins: include '#')</label>
+            <input type="text" name="university_id" id="university_id" required 
+                placeholder="2023/01234 (or #AdminID)" onkeyup="checkAdmin()">
         </div>
         <div class="form-group">
             <label for="full_name">Full Name</label>
@@ -18,8 +18,7 @@
         </div>
         <div class="form-group">
             <label for="phone_number">Phone Number</label>
-            <input type="text" name="phone_number" id="phone_number" required pattern="\d{1,11}" maxlength="11"
-                title="Numbers only, max 11 digits" placeholder="01xxxxxxxxx">
+            <input type="text" name="phone_number" id="phone_number" required pattern="\d{1,11}" maxlength="11">
         </div>
         <div class="form-group">
             <label for="password">Password</label>
@@ -28,26 +27,44 @@
 
         <hr style="border: 0; border-top: 1px solid var(--text-color); margin: 20px 0;">
 
-        <!-- Vehicle Info (Optional) -->
-        <h3>Vehicle Details (Optional)</h3>
-        <p style="font-size: 0.8rem; margin-top:0;">Fill this if you are a car owner.</p>
+        <div id="vehicle-section">
+            <h3>Vehicle Details</h3>
+            <p style="font-size: 0.8rem; margin-top:0; color: var(--highlight);">* Required for all Students</p>
 
-        <div class="form-group">
-            <label for="license_plate">License Plate</label>
-            <input type="text" name="license_plate" id="license_plate" placeholder="e.g. 123-ABC">
-        </div>
-        <div class="form-group">
-            <label for="vehicle_model">Car Model</label>
-            <input type="text" name="vehicle_model" id="vehicle_model" placeholder="e.g. Toyota Corning">
-        </div>
-        <div class="form-group">
-            <label for="vehicle_color">Car Color</label>
-            <input type="text" name="vehicle_color" id="vehicle_color" placeholder="e.g. Black">
+            <div class="form-group">
+                <label for="license_plate">License Plate</label>
+                <input type="text" name="license_plate" id="license_plate" placeholder="e.g. 123-ABC" required>
+            </div>
+            <div class="form-group">
+                <label for="vehicle_model">Car Model</label>
+                <input type="text" name="vehicle_model" id="vehicle_model" placeholder="e.g. Toyota Corolla" required>
+            </div>
+            <div class="form-group">
+                <label for="vehicle_color">Car Color</label>
+                <input type="text" name="vehicle_color" id="vehicle_color" placeholder="e.g. Black" required>
+            </div>
         </div>
 
         <button type="submit" class="btn full-width-btn">Register</button>
     </form>
     <p>Already have an account? <a href="<?php echo URLROOT; ?>/auth/login">Login</a></p>
 </div>
+
+<script>
+function checkAdmin() {
+    const idInput = document.getElementById('university_id').value;
+    const vehicleSection = document.getElementById('vehicle-section');
+    const vehicleInputs = vehicleSection.querySelectorAll('input');
+
+    // If ID contains '#', treat as Admin (Hide vehicle inputs)
+    if (idInput.includes('#')) {
+        vehicleSection.style.display = 'none';
+        vehicleInputs.forEach(input => input.required = false); // Remove 'required'
+    } else {
+        vehicleSection.style.display = 'block';
+        vehicleInputs.forEach(input => input.required = true); // Enforce 'required'
+    }
+}
+</script>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>
