@@ -51,7 +51,7 @@ class Report extends Model
             // Check if notification already sent to avoid spamming
             if (!$notifModel->notificationExistsForReport($report['report_id'])) {
                 
-                $msg = "Timeout Check: Report #" . $report['report_id'] . " has been active for 15+ mins. Is the issue resolved?";
+                $msg = "Timeout Check: Report #" . $report['report_id'] . " has been active for 3+ mins. Is the issue resolved?";
                 // Create notification linked to the report
                 $notifModel->create($report['reporter_id'], $msg, $report['report_id']);
             }

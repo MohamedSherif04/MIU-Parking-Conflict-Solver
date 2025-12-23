@@ -18,6 +18,11 @@ class DashboardController extends Controller
             $reportModel = $this->model('Report');
             $notifModel = $this->model('Notification');
 
+            // [MODIFIED] Trigger Timeout Check for Students too
+            // This ensures notifications are sent closer to the 3-minute mark
+            // instead of waiting for an Admin to log in.
+            $reportModel->sendTimeouts();
+
             $vehicles = $vehicleModel->getVehiclesByUserId($_SESSION['user_id']);
             $reports = $reportModel->getReportsByUserId($_SESSION['user_id']);
             $notifications = $notifModel->getUserNotifications($_SESSION['user_id']);
@@ -29,11 +34,9 @@ class DashboardController extends Controller
                 'reports' => $reports, 
                 'notifications' => $notifications
             ]);
-
-            $this->view('dashboard/student', ['vehicles' => $vehicles, 'reports' => $reports]);
         } else {
             // Admin logic usually in AdminController or handled here
-            header('Location: /admin/dashboard');
+            header('Location: ' . URLROOT . '/dashboard/admin');
         }
     }
 
